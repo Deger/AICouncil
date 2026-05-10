@@ -17,7 +17,7 @@ Install the AICouncil skill from https://github.com/Deger/AICouncil, then use it
 
 That's it. The AI installs the skill, then spawns Claude and Codex to write plans, compares them, asks you the hard questions, runs reviews, and gives you a final plan.
 
-After the first time, just type `/aicouncil <requirement>`.
+After the first time, just type `/aic <requirement>`.
 
 **Example**: you want dark mode. You paste:
 
@@ -34,7 +34,7 @@ Add a dark mode toggle to Settings. Persist preference in localStorage.
 npx skills add Deger/AICouncil -g
 ```
 
-Then type `/aicouncil <requirement>` in Claude Code or OpenCode.
+Then type `/aic <requirement>` in Claude Code or OpenCode.
 
 Prefer the CLI directly?
 

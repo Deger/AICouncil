@@ -1,5 +1,5 @@
 ---
-name: aicouncil
+name: aic
 description: Multi-agent dev council — use Claude, Codex & OpenCode to plan, review, and converge on technical designs before coding.
 disable-model-invocation: false
 allowed-tools: Bash Read Write Edit Grep Glob

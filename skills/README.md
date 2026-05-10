@@ -11,11 +11,11 @@ npx skills add Deger/AICouncil -g
 Or manually:
 
 ```bash
-mkdir -p ~/.claude/skills/aicouncil
-curl -o ~/.claude/skills/aicouncil/SKILL.md https://raw.githubusercontent.com/Deger/AICouncil/main/skills/aicouncil/SKILL.md
+mkdir -p ~/.claude/skills/aic
+curl -o ~/.claude/skills/aic/SKILL.md https://raw.githubusercontent.com/Deger/AICouncil/main/skills/aic/SKILL.md
 ```
 
-Then type `/aicouncil <requirement>`.
+Then type `/aic <requirement>`.
 
 ## OpenCode
 
@@ -30,6 +30,8 @@ Or manually:
 ```bash
 curl -o ~/.openclaw/skills/aicouncil.md https://raw.githubusercontent.com/Deger/AICouncil/main/skills/opencode/aicouncil.md
 ```
+
+Then type `/aic <requirement>`.
 
 ## Codex
 
