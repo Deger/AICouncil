@@ -9,6 +9,17 @@ allowed-tools: Bash Read Write Edit Grep Glob
 
 You are using aicouncil, a multi-agent dev council orchestrator. Follow this workflow when the user asks you to plan a technical design.
 
+## Which tool are you? (read this first)
+
+You are the orchestrator. Identify which AI tool you are running in, then **never spawn yourself**:
+
+- **Claude Code** → You will write `03_claude_architect.md` directly. Only spawn Codex.
+- **OpenCode (DeepSeek)** → You will write `03_opencode_architect.md` directly. Only spawn Claude and Codex.
+- **Codex** → You will write `03_codex_architect.md` directly. Only spawn Claude.
+- **Other** → Write your plan as `03_orchestrator_architect.md`. Spawn all other agents.
+
+In all cases: you handle synthesis, revision, and finalization yourself. `aicouncil continue` only spawns reviewers — and you never list yourself as a reviewer.
+
 ## Setup (first time only)
 
 If aicouncil is not installed, install it:
@@ -29,27 +40,20 @@ This creates `council.yaml`. Run `aicouncil validate` to check it.
 
 ### Step 1: Plan
 
-When the user gives you a requirement, run:
+When the user gives you a requirement:
 
+1. **Edit `council.yaml`** — remove yourself from `workflow.stages[0].agents`. Example: if you are Claude Code, change `agents: [claude, codex]` to `agents: [codex]`. Never spawn yourself.
+
+2. **Spawn other agents**:
 ```bash
 aicouncil plan "<topic>" [--file <path>] [--stdin]
 ```
 
-This spawns Claude Code and Codex in parallel. They each write a technical plan.
+3. **Write your own plan** — save it in the run directory. Name it `03_<your-tool>_architect.md` (e.g., `03_claude_architect.md`). Use the same format as the architect prompt template.
 
 ### Step 2: Read the outputs
 
-```bash
-ls runs/<run-dir>/
-```
-
-Read:
-- `01_claude_architect.md` — Claude's plan
-- `02_codex_architect.md` — Codex's plan
-
-### Step 3: Write your own plan
-
-Write your plan as `03_opencode_architect.md` in the run directory. Use the same format as the architect prompt template.
+Read all plans in the run directory. There should be 2-3 plans (your own + whatever the other agents produced).
 
 ### Step 4: Synthesize
 
@@ -75,15 +79,15 @@ Generate `07_final_plan.md` incorporating human decisions. Also write:
 - `08_implementation_prompt.md` — Ready-to-execute dev prompt
 - `09_review_checklist.md` — Review criteria checklist
 
-### Step 7: Reviews (automated)
+### Step 7: Reviews
+
+Before running reviews, **edit `council.yaml`** — remove yourself from the review stage's `agents` list. Never review your own plan.
 
 ```bash
 aicouncil continue runs/<run-dir>
 ```
 
-This spawns Claude and Codex to review `07_final_plan.md`. Read their outputs:
-- `10_review_claude_round1.md`
-- `10_review_codex_round1.md`
+This spawns the OTHER agents to review the plan. Read their outputs and the synthesis you produced earlier.
 
 ### Step 8: Revise
 
