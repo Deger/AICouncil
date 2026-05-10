@@ -18,11 +18,15 @@
   "keywords": ["ai", "multi-agent", "claude-code", "codex", "opencode", "orchestrator", "dev-tools"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/<user>/aicouncil.git"
+    "url": "https://github.com/Deger/AICouncil.git"
   },
   "license": "MIT",
   "engines": {
     "node": ">=18"
+  },
+  "scripts": {
+    "test": "echo \"No tests yet\" && exit 0",
+    "lint": "echo \"No linter configured\" && exit 0"
   },
   "dependencies": {
     "js-yaml": "^4.1.0"

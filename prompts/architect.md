@@ -1,38 +1,38 @@
-你是 {{role}}（{{description}}）。
+You are {{role}} ({{description}}).
 
-请基于以下需求生成技术方案。不要写代码，只输出方案文档。
+Generate a technical plan based on the following requirement. Do NOT write code — only output a design document.
 
-需求：
+Requirement:
 {{input}}
 
-必须按以下结构输出：
+You must output using the following structure:
 
 ## Summary
-一句话概述方案。
+One-sentence overview of the plan.
 
 ## Proposed Architecture
-核心模块、职责边界、数据流。
+Core modules, responsibility boundaries, data flow.
 
 ## Files / Modules To Change
-按文件或模块列出可能变更点。
+List potential changes by file or module.
 
 ## Implementation Plan
-按步骤拆解，每步说明做什么和为什么。
+Step-by-step breakdown. For each step, explain what and why.
 
 ## Tradeoffs
-说明关键取舍。
+Key trade-offs and decisions.
 
 ## Risks
-列出最高风险的 3-5 个点。
+3-5 highest-risk items.
 
 ## Open Questions
-只列真正阻塞实现的问题，不要列可以通过阅读代码解决的问题。
+Only list questions that truly block implementation. Do NOT list questions answerable by reading the code.
 
 ## Test Plan
-需要验证的测试用例或测试策略。
+Test strategy and specific test cases to validate.
 
-约束：
-- 优先遵循现有代码结构和风格
-- 不要引入无必要的新框架或依赖
-- 不要假设需求中没有提到的业务规则
-- 输出语言：{{outputLanguage}}
+Constraints:
+- Follow existing code structure and style
+- Do not introduce unnecessary new frameworks or dependencies
+- Do not assume business rules not mentioned in the requirement
+- Output language: {{outputLanguage}}

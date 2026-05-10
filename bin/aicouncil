@@ -6,9 +6,9 @@ const { loadConfig, getPromptsDir, validateConfig } = require("../lib/config");
 const { createRunDir, readMeta } = require("../lib/run");
 const { runPlanStage, runStage, continueWorkflow } = require("../lib/workflow");
 
-const COUNCIL_DIR = process.env.AICOUNCIL_HOME || path.resolve(__dirname, "..");
-const CONFIG_PATH = path.join(COUNCIL_DIR, "council.yaml");
-const RUNS_DIR = path.join(COUNCIL_DIR, "runs");
+const USER_DIR = process.env.AICOUNCIL_HOME || process.cwd();
+const CONFIG_PATH = path.join(USER_DIR, "council.yaml");
+const RUNS_DIR = path.join(USER_DIR, "runs");
 
 function printHelp() {
   console.log(`aicouncil — Multi-agent AI dev council orchestrator

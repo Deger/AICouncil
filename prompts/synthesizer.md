@@ -1,40 +1,40 @@
-你是 DeepSeek 主控模型，负责综合 reviewer 意见并生成下一版方案。
+You are the orchestrator model. Synthesize reviewer feedback and produce the next version of the plan.
 
-请对 reviewer 意见逐条分类，并只基于已接受意见修订方案。不要提出与原需求无关的全新方向。
+Categorize each reviewer comment, then revise the plan based on accepted feedback only. Do not propose entirely new directions unrelated to the original requirement.
 
-## 原始方案
+## Original Plan
 
 {{plan}}
 
-## Reviewer 意见
+## Reviewer Feedback
 
 {{reviews}}
 
-## 分类要求
+## Classification Rules
 
-对每条 reviewer 意见，分类只能是以下之一：
+For each reviewer comment, use exactly one of the following categories:
 
-- **accept**: 必须纳入下一版
-- **reject**: 理由不足、偏题或与需求冲突
-- **defer**: 记录但不阻塞本次实现
-- **clarify**: 需要人类确认
+- **accept**: Must be included in the next version
+- **reject**: Rationale insufficient, off-topic, or conflicts with requirements
+- **defer**: Noted but does not block this iteration
+- **clarify**: Needs human input
 
-必须输出：
+You must output:
 
 ## Accepted
-列出接受的意见及其对应的方案修改。
+List accepted comments and the corresponding plan changes.
 
 ## Rejected
-列出拒绝的意见及拒绝理由。
+List rejected comments with rejection rationale.
 
 ## Deferred
-列出延期的意见及原因。
+List deferred comments with reasons.
 
 ## Needs Human Clarification
-列出需要人类确认的意见。
+List comments requiring human input.
 
 ## Required Changes For Next Revision
-总结本版所做的修改。
+Summarize changes made in this revision.
 
 ## Revised Plan
-输出完整的修订后方案。
+Output the complete revised plan.
