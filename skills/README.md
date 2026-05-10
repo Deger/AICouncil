@@ -4,20 +4,18 @@ Pre-built skill files so your AI tool knows exactly how to use aicouncil. Tell y
 
 ## Claude Code
 
-Tell Claude:
-
-```
-Install the aicouncil skill from https://github.com/Deger/AICouncil/blob/main/skills/claude-code/SKILL.md
+```bash
+npx skills add Deger/AICouncil -g
 ```
 
 Or manually:
 
 ```bash
 mkdir -p ~/.claude/skills/aicouncil
-curl -o ~/.claude/skills/aicouncil/SKILL.md https://raw.githubusercontent.com/Deger/AICouncil/main/skills/claude-code/SKILL.md
+curl -o ~/.claude/skills/aicouncil/SKILL.md https://raw.githubusercontent.com/Deger/AICouncil/main/skills/aicouncil/SKILL.md
 ```
 
-Then just type `/aicouncil <your requirement>`.
+Then type `/aicouncil <requirement>`.
 
 ## OpenCode
 
