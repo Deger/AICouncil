@@ -1,0 +1,50 @@
+version: 2
+
+defaults:
+  timeoutSeconds: 1800
+  # Supported: "en", "zh-CN", "ja", etc.
+  outputLanguage: "en"
+
+agents:
+  claude:
+    command: "claude"
+    # --bare skips repo scanning for faster planning
+    args: ["-p", "--bare"]
+    role: "Conservative Architect"
+    description: "Focus on long-term maintenance, edge cases, boundary conditions"
+
+  codex:
+    command: "codex"
+    args: ["exec"]
+    role: "Implementation Architect"
+    description: "Focus on repo-aware delivery, task breakdown, test planning"
+
+  opencode:
+    # No "command" — synthesis stages are handled by you (the human) in your OpenCode session
+    role: "Lead Developer & Orchestrator"
+    description: "Synthesizes plans, judges reviews, resolves conflicts, produces final plan"
+
+workflow:
+  stages:
+    - id: plan
+      description: "Generate independent plans from all agents in parallel"
+      agents: [claude, codex]       # which agents to call (opencode is you — you write your own plan)
+      prompt: architect.md
+      parallel: true
+
+    - id: synthesis
+      description: "Compare plans, extract open questions for human decision"
+      gate: 06_human_answers.md     # workflow pauses here — edit this file, then continue
+
+    - id: final-plan
+      description: "Generate comprehensive final plan, implementation prompt, and review checklist"
+
+    - id: review
+      description: "Agents review the current plan"
+      agents: [claude, codex]
+      prompt: reviewer.md
+      parallel: true
+      rounds: 2                     # change to 1 for a lighter process
+
+    - id: finalize
+      description: "Extract final open questions and produce the converged final.md"

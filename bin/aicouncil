@@ -1,0 +1,221 @@
+#!/usr/bin/env node
+
+const fs = require("fs");
+const path = require("path");
+const { loadConfig, getPromptsDir, validateConfig } = require("../lib/config");
+const { createRunDir, readMeta } = require("../lib/run");
+const { runPlanStage, runStage, continueWorkflow } = require("../lib/workflow");
+
+const COUNCIL_DIR = process.env.AICOUNCIL_HOME || path.resolve(__dirname, "..");
+const CONFIG_PATH = path.join(COUNCIL_DIR, "council.yaml");
+const RUNS_DIR = path.join(COUNCIL_DIR, "runs");
+
+function printHelp() {
+  console.log(`aicouncil — Multi-agent AI dev council orchestrator
+
+Usage:
+  aicouncil plan <topic>          Generate independent plans from all agents
+                [--file <path>]    Read additional context from a file
+                [--stdin]          Read topic from stdin
+  aicouncil continue <run-dir>    Continue a run (auto-detect next stage)
+  aicouncil status <run-dir>      Show run status
+  aicouncil init                  Create council.yaml template in current directory
+  aicouncil run <stage> <run-dir> Execute a single workflow stage
+  aicouncil validate              Validate council.yaml configuration
+  aicouncil help                  Show this help
+
+Options:
+  --dry-run    Print commands without executing
+  --verbose    Print full prompts and agent output
+`);
+}
+
+function cmdInit() {
+  const target = path.join(process.cwd(), "council.yaml");
+  if (fs.existsSync(target)) {
+    console.log(`council.yaml already exists at ${target}`);
+    process.exit(1);
+  }
+
+  const template = `version: 2
+
+defaults:
+  timeoutSeconds: 1800
+  # Supported: "en", "zh-CN", "ja", etc.
+  outputLanguage: "en"
+
+agents:
+  claude:
+    command: "claude"
+    # --bare skips repo scanning for faster response
+    args: ["-p", "--bare"]
+    role: "Conservative Architect"
+    description: "Focus on long-term maintenance, edge cases, boundary conditions"
+
+  codex:
+    command: "codex"
+    args: ["exec"]
+    role: "Implementation Architect"
+    description: "Focus on repo-aware delivery, task breakdown, test planning"
+
+  opencode:
+    # No "command" — you ARE the orchestrator in your OpenCode session
+    role: "Lead Developer & Orchestrator"
+    description: "Synthesizes plans, judges reviews, resolves conflicts"
+
+workflow:
+  stages:
+    - id: plan
+      description: "Generate independent plans from all agents in parallel"
+      agents: [claude, codex]
+      prompt: architect.md
+      parallel: true
+
+    - id: synthesis
+      description: "Compare plans, extract open questions for you to decide"
+      gate: 06_human_answers.md
+
+    - id: final-plan
+      description: "Generate comprehensive final plan and implementation prompt"
+
+    - id: review
+      description: "Agents review the current plan"
+      agents: [claude, codex]
+      prompt: reviewer.md
+      parallel: true
+      rounds: 2                     # set to 1 for a lighter process
+
+    - id: finalize
+      description: "Extract final questions and produce the converged final.md"
+`;
+
+  fs.writeFileSync(target, template);
+  console.log(`Created: ${target}`);
+  console.log("Edit this file to configure your agents and workflow.");
+}
+
+function cmdStatus(runDir) {
+  const meta = readMeta(runDir);
+  console.log(JSON.stringify(meta, null, 2));
+}
+
+function cmdValidate() {
+  try {
+    const config = loadConfig(CONFIG_PATH);
+    const errors = validateConfig(config);
+    if (errors.length === 0) {
+      console.log("Configuration is valid.");
+      console.log(`Agents: ${Object.keys(config.agents).join(", ")}`);
+      console.log(`Stages: ${config.workflow.stages.map(s => s.id).join(" → ")}`);
+    } else {
+      console.log("Configuration errors:");
+      errors.forEach(e => console.log(`  - ${e}`));
+      process.exit(1);
+    }
+  } catch (err) {
+    console.log(`Error: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+
+  // Global flags
+  const dryRun = args.includes("--dry-run");
+  const verbose = args.includes("--verbose");
+  const stdinMode = args.includes("--stdin");
+  const fileIdx = args.indexOf("--file");
+  const filePath = fileIdx !== -1 && fileIdx + 1 < args.length && !args[fileIdx + 1].startsWith("--") ? args[fileIdx + 1] : null;
+  const filteredArgs = args.filter((a, i) => {
+    if (a === "--dry-run" || a === "--verbose" || a === "--stdin") return false;
+    if (a === "--file") return false;
+    if (filePath && i === fileIdx + 1) return false;
+    return true;
+  });
+
+  if (dryRun) console.log("[DRY RUN] No commands will be executed.\n");
+  if (verbose) process.env.AICOUNCIL_VERBOSE = "1";
+
+  const cmd = filteredArgs[0];
+
+  switch (cmd) {
+    case "plan": {
+      let topic = filteredArgs.slice(1).join(" ");
+
+      if (stdinMode) {
+        topic = fs.readFileSync(0, "utf-8").trim();
+      }
+
+      if (filePath) {
+        if (!fs.existsSync(filePath)) {
+          console.log(`File not found: ${filePath}`);
+          process.exit(1);
+        }
+        const fileContent = fs.readFileSync(filePath, "utf-8").trim();
+        topic = topic ? `${topic}\n\n---\n\n${fileContent}` : fileContent;
+      }
+
+      if (!topic) { console.log("Usage: aicouncil plan <topic> [--file <path>] [--stdin]"); process.exit(1); }
+      if (dryRun) { console.log(`Would run: plan (${topic.length} chars)`); break; }
+      const config = loadConfig(CONFIG_PATH);
+      const promptsDir = getPromptsDir(CONFIG_PATH);
+      const { dir, name } = createRunDir(RUNS_DIR, topic);
+      console.log(`\nRun: ${name}\nDir:  ${dir}\n`);
+      fs.writeFileSync(path.join(dir, "00_input.md"), topic.trim() + "\n");
+      const meta = { id: name, createdAt: new Date().toISOString(), stage: "planning_running", topic: topic.slice(0, 200), agents: {} };
+      require("../lib/run").writeMeta(dir, meta);
+      await runPlanStage(config, promptsDir, dir, topic);
+      meta.stage = "planning_done";
+      require("../lib/run").writeMeta(dir, meta);
+      console.log(`\nOutput: ${dir}`);
+      console.log(`\nNext: ask opencode to run synthesis, then:\n  aicouncil continue ${dir}`);
+      break;
+    }
+    case "continue": {
+      const dir = filteredArgs[1];
+      if (!dir) { console.log("Usage: aicouncil continue <run-dir>"); process.exit(1); }
+      if (dryRun) { console.log(`Would run: continue ${dir}`); break; }
+      const config = loadConfig(CONFIG_PATH);
+      const promptsDir = getPromptsDir(CONFIG_PATH);
+      await continueWorkflow(config, promptsDir, dir);
+      break;
+    }
+    case "status": {
+      const dir = filteredArgs[1];
+      if (!dir) { console.log("Usage: aicouncil status <run-dir>"); process.exit(1); }
+      cmdStatus(dir);
+      break;
+    }
+    case "init":
+      cmdInit();
+      break;
+    case "run": {
+      const stage = filteredArgs[1];
+      const dir = filteredArgs[2];
+      if (!stage || !dir) { console.log("Usage: aicouncil run <stage> <run-dir>"); process.exit(1); }
+      if (dryRun) { console.log(`Would run: stage "${stage}" on ${dir}`); break; }
+      const config = loadConfig(CONFIG_PATH);
+      const promptsDir = getPromptsDir(CONFIG_PATH);
+      await runStage(config, promptsDir, dir, stage);
+      break;
+    }
+    case "validate":
+      cmdValidate();
+      break;
+    case "help":
+    case "--help":
+    case "-h":
+      printHelp();
+      break;
+    default:
+      console.log(`Unknown command: ${cmd}`);
+      printHelp();
+      process.exit(1);
+  }
+}
+
+main().catch((err) => {
+  console.error("Fatal:", err.message);
+  process.exit(1);
+});

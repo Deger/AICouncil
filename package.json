@@ -1,0 +1,29 @@
+{
+  "name": "aicouncil",
+  "version": "0.2.0",
+  "description": "Multi-agent AI dev council orchestrator — 多模型开发议会编排工具",
+  "bin": {
+    "aicouncil": "./bin/aicouncil"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "prompts/",
+    "council.yaml",
+    "README.md",
+    "CONTRIBUTING.md",
+    "LICENSE"
+  ],
+  "keywords": ["ai", "multi-agent", "claude-code", "codex", "opencode", "orchestrator", "dev-tools"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<user>/aicouncil.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}
