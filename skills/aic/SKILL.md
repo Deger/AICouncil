@@ -13,10 +13,10 @@ You are using aicouncil, a multi-agent dev council orchestrator. Follow this wor
 
 You are the orchestrator. Identify which AI tool you are running in, then **never spawn yourself**:
 
-- **Claude Code** → You will write `03_claude_architect.md` directly. Only spawn Codex.
-- **OpenCode (DeepSeek)** → You will write `03_opencode_architect.md` directly. Only spawn Claude and Codex.
-- **Codex** → You will write `03_codex_architect.md` directly. Only spawn Claude.
-- **Other** → Write your plan as `03_orchestrator_architect.md`. Spawn all other agents.
+- **Claude Code** → Spawn all other agents (Codex, OpenCode). OpenCode has no `command` so it will be skipped — that's correct.
+- **OpenCode (DeepSeek)** → Spawn all other agents (Claude, Codex). Both have commands, both will run.
+- **Codex** → Spawn all other agents (Claude, OpenCode). OpenCode will be skipped.
+- **Other** → Spawn all other agents. Write your plan as `03_orchestrator_architect.md`.
 
 In all cases: you handle synthesis, revision, and finalization yourself. `aicouncil continue` only spawns reviewers — and you never list yourself as a reviewer.
 
@@ -42,7 +42,7 @@ This creates `council.yaml`. Run `aicouncil validate` to check it.
 
 When the user gives you a requirement:
 
-1. **Edit `council.yaml`** — remove yourself from `workflow.stages[0].agents`. Example: if you are Claude Code, change `agents: [claude, codex]` to `agents: [codex]`. Never spawn yourself.
+1. **Edit `council.yaml`** — remove yourself from `workflow.stages[0].agents`. Keep all other agents. Example: if you are Claude Code, change `agents: [claude, codex, opencode]` to `agents: [codex, opencode]`.
 
 2. **Spawn other agents**:
 ```bash
