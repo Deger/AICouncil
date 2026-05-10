@@ -11,33 +11,38 @@ You tell your AI tool what you want. aicouncil makes Claude, Codex, and OpenCode
 You don't install anything. You don't run commands. You just paste one sentence into your AI tool:
 
 ```
-Install https://github.com/Deger/AICouncil.git, then use aicouncil to plan this:
+Install the AICouncil skill from https://github.com/Deger/AICouncil, then use it to plan this:
 <your requirement>
 ```
 
-That's it. The AI installs aicouncil, spawns Claude and Codex to write plans, compares them, asks you the hard questions, runs reviews, and gives you a final plan.
+That's it. The AI installs the skill, then spawns Claude and Codex to write plans, compares them, asks you the hard questions, runs reviews, and gives you a final plan.
+
+After the first time, just type `/aicouncil <requirement>`.
 
 **Example**: you want dark mode. You paste:
 
 ```
-Install https://github.com/Deger/AICouncil.git, then use aicouncil to plan this:
+Install the AICouncil skill from https://github.com/Deger/AICouncil, then use it to plan this:
 Add a dark mode toggle to Settings. Persist preference in localStorage.
 ```
-
-Your AI handles everything. You only interact when it asks you a question.
 
 ---
 
 ## If you want to run it yourself
 
 ```bash
-git clone https://github.com/Deger/AICouncil.git && cd AICouncil && npm install && npm link
-cd your-project
-aicouncil init
-aicouncil plan "Add a rate limiter to the API gateway"
+npx skills add Deger/AICouncil -g
 ```
 
-Open `runs/<date>-<topic>/` to see Claude and Codex's plans. You write yours as `03_opencode_architect.md`. Then synthesize, answer questions, and `aicouncil continue` to run reviews.
+Then type `/aicouncil <requirement>` in Claude Code or OpenCode.
+
+Prefer the CLI directly?
+
+```bash
+git clone https://github.com/Deger/AICouncil.git && cd AICouncil && npm install && npm link
+cd your-project && aicouncil init
+aicouncil plan "Add a rate limiter to the API gateway"
+```
 
 ---
 
