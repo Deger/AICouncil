@@ -59,7 +59,8 @@ agents:
     description: "Focus on repo-aware delivery, task breakdown, test planning"
 
   opencode:
-    # No "command" — you ARE the orchestrator in your OpenCode session
+    command: "opencode"
+    args: ["run", "--dangerously-skip-permissions", "--pure"]
     role: "Lead Developer & Orchestrator"
     description: "Synthesizes plans, judges reviews, resolves conflicts"
 
@@ -67,7 +68,7 @@ workflow:
   stages:
     - id: plan
       description: "Generate independent plans from all agents in parallel"
-      agents: [claude, codex]
+      agents: [claude, codex, opencode]
       prompt: architect.md
       parallel: true
 
@@ -80,7 +81,7 @@ workflow:
 
     - id: review
       description: "Agents review the current plan"
-      agents: [claude, codex]
+      agents: [claude, codex, opencode]
       prompt: reviewer.md
       parallel: true
       rounds: 2                     # set to 1 for a lighter process
