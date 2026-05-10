@@ -1,4 +1,4 @@
-# aicouncil
+# AICouncil
 
 > **One command. Three AIs debate your plan. You get a reviewed design before coding.**
 
@@ -6,25 +6,11 @@ You tell your AI tool what you want. aicouncil makes Claude, Codex, and OpenCode
 
 ---
 
-## If you vibe code (start here)
+## If you vibe code 
 
 You don't install anything. You don't run commands. You just paste one sentence into your AI tool:
 
-```
-Install https://github.com/Deger/aicouncil.git, then use aicouncil to plan this:
-<your requirement>
-```
-
-That's it. The AI installs aicouncil, spawns Claude and Codex to write plans, compares them, asks you the hard questions, runs reviews, and gives you a final plan.
-
-**Example**: you want to add dark mode. You paste:
-
-```
-Install https://github.com/Deger/aicouncil.git, then use aicouncil to plan this:
-Add a dark mode toggle to Settings. Persist preference in localStorage. Support system preference detection.
-```
-
-Your AI handles the rest. You only interact when it asks you a question.
+`Install the AICouncil skill from https://github.com/Deger/AICouncil`. Then just type `/aicouncil <requirement>`. See [skills/README.md](skills/README.md).
 
 ---
 
@@ -59,7 +45,7 @@ runs/2026-05-10-add-rate-limiter/
 
 ---
 
-## For Your AI Tool (copy-paste this)
+## For Your AI Tool 
 
 This is the exact prompt to give your AI coding tool. It tells the AI to use aicouncil step by step.
 
@@ -313,7 +299,7 @@ aicouncil enforces structure. Agents write in the same format. Reviews are struc
 
 ## 中文说明
 
-aicouncil 是多 AI 模型开发议会编排工具。一条命令让 Claude、Codex、OpenCode 三个 AI 并行出方案、互相评审、迭代收敛，最终产出可执行的实施计划。
+AICouncil 是多 AI 模型开发议会编排工具。一条命令让 Claude、Codex、OpenCode 三个 AI 并行出方案、互相评审、迭代收敛，最终产出可执行的实施计划。
 
 核心理念：一个 AI 给你答案，三个不同视角的 AI 给你辩论过的方案。
 

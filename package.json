@@ -9,6 +9,7 @@
     "bin/",
     "lib/",
     "prompts/",
+    "skills/",
     "council.yaml",
     "README.md",
     "CONTRIBUTING.md",
