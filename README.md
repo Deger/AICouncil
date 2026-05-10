@@ -6,21 +6,32 @@ You tell your AI tool what you want. aicouncil makes Claude, Codex, and OpenCode
 
 ---
 
-## If you vibe code 
+## If you vibe code (start here)
 
 You don't install anything. You don't run commands. You just paste one sentence into your AI tool:
 
-`Install the AICouncil skill from https://github.com/Deger/AICouncil`. Then just type `/aicouncil <requirement>`. See [skills/README.md](skills/README.md).
+```
+Install https://github.com/Deger/AICouncil.git, then use aicouncil to plan this:
+<your requirement>
+```
+
+That's it. The AI installs aicouncil, spawns Claude and Codex to write plans, compares them, asks you the hard questions, runs reviews, and gives you a final plan.
+
+**Example**: you want dark mode. You paste:
+
+```
+Install https://github.com/Deger/AICouncil.git, then use aicouncil to plan this:
+Add a dark mode toggle to Settings. Persist preference in localStorage.
+```
+
+Your AI handles everything. You only interact when it asks you a question.
 
 ---
 
 ## If you want to run it yourself
 
-You prefer to drive. Here are the commands:
-
 ```bash
-git clone https://github.com/Deger/aicouncil.git && cd aicouncil
-npm install && npm link
+git clone https://github.com/Deger/AICouncil.git && cd AICouncil && npm install && npm link
 cd your-project
 aicouncil init
 aicouncil plan "Add a rate limiter to the API gateway"
