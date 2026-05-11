@@ -9,7 +9,7 @@ agents:
   claude:
     command: "claude"
     # --bare skips repo scanning for faster planning
-    args: ["-p", "--bare"]
+    args: ["-p"]
     role: "Conservative Architect"
     description: "Focus on long-term maintenance, edge cases, boundary conditions"
 

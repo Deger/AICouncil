@@ -17,6 +17,8 @@ curl -o ~/.claude/skills/aic/SKILL.md https://raw.githubusercontent.com/Deger/AI
 
 Then type `/aic <requirement>`.
 
+> **After install**: restart Claude Code for `/aic` to appear.
+
 ## OpenCode
 
 Tell OpenCode:
@@ -32,6 +34,8 @@ curl -o ~/.openclaw/skills/aicouncil.md https://raw.githubusercontent.com/Deger/
 ```
 
 Then type `/aic <requirement>`.
+
+> **After install**: restart OpenCode. `/aic` doesn't auto-suggest yet — type `/skills` to discover it, or manually type `/aic`.
 
 ## Codex
 

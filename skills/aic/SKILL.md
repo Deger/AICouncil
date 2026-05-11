@@ -11,14 +11,13 @@ You are using aicouncil, a multi-agent dev council orchestrator. Follow this wor
 
 ## Which tool are you? (read this first)
 
-You are the orchestrator. Identify which AI tool you are running in, then **never spawn yourself**:
+You are the orchestrator. Identify which AI tool you are, then use `--skip <yourself>` to avoid spawning yourself:
 
-- **Claude Code** → Spawn all other agents (Codex, OpenCode). OpenCode has no `command` so it will be skipped — that's correct.
-- **OpenCode (DeepSeek)** → Spawn all other agents (Claude, Codex). Both have commands, both will run.
-- **Codex** → Spawn all other agents (Claude, OpenCode). OpenCode will be skipped.
-- **Other** → Spawn all other agents. Write your plan as `03_orchestrator_architect.md`.
+- **Claude Code** → `aicouncil plan --skip claude` / `aicouncil continue --skip claude`
+- **OpenCode (DeepSeek)** → `aicouncil plan --skip opencode` / `aicouncil continue --skip opencode`
+- **Codex** → `aicouncil plan --skip codex` / `aicouncil continue --skip codex`
 
-In all cases: you handle synthesis, revision, and finalization yourself. `aicouncil continue` only spawns reviewers — and you never list yourself as a reviewer.
+In all cases: you handle synthesis, revision, and finalization yourself. Never spawn yourself — always use `--skip`.
 
 ## Setup (first time only)
 
@@ -40,16 +39,12 @@ This creates `council.yaml`. Run `aicouncil validate` to check it.
 
 ### Step 1: Plan
 
-When the user gives you a requirement:
-
-1. **Edit `council.yaml`** — remove yourself from `workflow.stages[0].agents`. Keep all other agents. Example: if you are Claude Code, change `agents: [claude, codex, opencode]` to `agents: [codex, opencode]`.
-
-2. **Spawn other agents**:
+1. **Spawn other agents** (skip yourself):
 ```bash
-aicouncil plan "<topic>" [--file <path>] [--stdin]
+aicouncil plan "<topic>" --skip <your-tool> [--file <path>] [--stdin]
 ```
 
-3. **Write your own plan** — save it in the run directory. Name it `03_<your-tool>_architect.md` (e.g., `03_claude_architect.md`). Use the same format as the architect prompt template.
+2. **Write your own plan** — save it in the run directory. Name it `03_<your-tool>_architect.md` (e.g., `03_claude_architect.md`).
 
 ### Step 2: Read the outputs
 
@@ -81,13 +76,11 @@ Generate `07_final_plan.md` incorporating human decisions. Also write:
 
 ### Step 7: Reviews
 
-Before running reviews, **edit `council.yaml`** — remove yourself from the review stage's `agents` list. Never review your own plan.
-
 ```bash
-aicouncil continue runs/<run-dir>
+aicouncil continue --skip <your-tool> runs/<run-dir>
 ```
 
-This spawns the OTHER agents to review the plan. Read their outputs and the synthesis you produced earlier.
+This spawns all OTHER agents to review the plan. You never review your own plan.
 
 ### Step 8: Revise
 

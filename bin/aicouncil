@@ -17,7 +17,9 @@ Usage:
   aicouncil plan <topic>          Generate independent plans from all agents
                 [--file <path>]    Read additional context from a file
                 [--stdin]          Read topic from stdin
+                [--skip <agents>]  Comma-separated agents to skip
   aicouncil continue <run-dir>    Continue a run (auto-detect next stage)
+                   [--skip <agents>]  Agents to skip in review stages
   aicouncil status <run-dir>      Show run status
   aicouncil init                  Create council.yaml template in current directory
   aicouncil run <stage> <run-dir> Execute a single workflow stage
@@ -48,7 +50,7 @@ agents:
   claude:
     command: "claude"
     # --bare skips repo scanning for faster response
-    args: ["-p", "--bare"]
+    args: ["-p"]
     role: "Conservative Architect"
     description: "Focus on long-term maintenance, edge cases, boundary conditions"
 
@@ -128,10 +130,22 @@ async function main() {
   const stdinMode = args.includes("--stdin");
   const fileIdx = args.indexOf("--file");
   const filePath = fileIdx !== -1 && fileIdx + 1 < args.length && !args[fileIdx + 1].startsWith("--") ? args[fileIdx + 1] : null;
+  const skipAgents = [];
+  const skipIndices = new Set();
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--skip" && i + 1 < args.length) {
+      const names = args[i + 1].split(",").map(s => s.trim()).filter(Boolean);
+      skipAgents.push(...names);
+      skipIndices.add(i);
+      skipIndices.add(i + 1);
+      i++;
+    }
+  }
   const filteredArgs = args.filter((a, i) => {
     if (a === "--dry-run" || a === "--verbose" || a === "--stdin") return false;
-    if (a === "--file") return false;
+    if (a === "--file" || a === "--skip") return false;
     if (filePath && i === fileIdx + 1) return false;
+    if (skipIndices.has(i)) return false;
     return true;
   });
 
@@ -166,7 +180,7 @@ async function main() {
       fs.writeFileSync(path.join(dir, "00_input.md"), topic.trim() + "\n");
       const meta = { id: name, createdAt: new Date().toISOString(), stage: "planning_running", topic: topic.slice(0, 200), agents: {} };
       require("../lib/run").writeMeta(dir, meta);
-      await runPlanStage(config, promptsDir, dir, topic);
+      await runPlanStage(config, promptsDir, dir, topic, skipAgents);
       meta.stage = "planning_done";
       require("../lib/run").writeMeta(dir, meta);
       console.log(`\nOutput: ${dir}`);
@@ -179,7 +193,7 @@ async function main() {
       if (dryRun) { console.log(`Would run: continue ${dir}`); break; }
       const config = loadConfig(CONFIG_PATH);
       const promptsDir = getPromptsDir(CONFIG_PATH);
-      await continueWorkflow(config, promptsDir, dir);
+      await continueWorkflow(config, promptsDir, dir, skipAgents);
       break;
     }
     case "status": {

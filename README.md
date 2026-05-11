@@ -19,6 +19,10 @@ That's it. The AI installs the skill, then spawns Claude and Codex to write plan
 
 After the first time, just type `/aic <requirement>`.
 
+> **First install?** Restart your AI tool after installing the skill.
+> - **Claude Code**: `/aic` shows up after restart.
+> - **OpenCode**: restart, then type `/skills` and select aicouncil, or manually type `/aic` (no autocomplete yet).
+
 **Example**: you want dark mode. You paste:
 
 ```
