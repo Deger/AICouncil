@@ -25,7 +25,8 @@ Use `--skip` on every `aicouncil plan` and `aicouncil continue` call. Never spaw
 # Install
 git clone https://github.com/Deger/AICouncil.git /tmp/aicouncil && cd /tmp/aicouncil && npm install && npm link
 
-# In the user's project
+# In the user's project root directory
+cd <project-root>
 aicouncil init
 aicouncil doctor
 ```
@@ -51,9 +52,11 @@ Add a rate limiter to the API gateway in src/gateway/. Token bucket algorithm, 1
 
 ### Step 1: Plan
 
+**Always run from the project root directory.** The `runs/` directory is created relative to your current working directory.
+
 Spawn other agents (skip yourself):
 ```bash
-aicouncil plan "<topic>" --skip <your-tool> [--file <path>] [--stdin]
+cd <project-root> && aicouncil plan "<topic>" --skip <your-tool> [--file <path>] [--stdin]
 ```
 
 ### Step 2: Write your own plan
