@@ -22,13 +22,15 @@ Use `--skip` on every `aicouncil plan` and `aicouncil continue` call. Never spaw
 ## Setup (first time only)
 
 ```bash
-# Install (if not already installed)
+# Install
 git clone https://github.com/Deger/AICouncil.git /tmp/aicouncil && cd /tmp/aicouncil && npm install && npm link
 
 # In the user's project
-aicouncil init            # creates council.yaml + copies prompt templates
-aicouncil doctor          # checks all agents are available
+aicouncil init
+aicouncil doctor
 ```
+
+**To update the skill later**: `npx skills update aic -g` or delete and reinstall.
 
 ## Writing a Good Topic
 
