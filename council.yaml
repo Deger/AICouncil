@@ -16,6 +16,7 @@ agents:
   codex:
     command: "codex"
     args: ["exec"]
+    # disabled: true              # uncomment to skip this agent
     role: "Implementation Architect"
     description: "Focus on repo-aware delivery, task breakdown, test planning"
 

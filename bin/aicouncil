@@ -67,6 +67,7 @@ agents:
   codex:
     command: "codex"
     args: ["exec"]
+    # disabled: true              # uncomment to skip this agent
     role: "Implementation Architect"
     description: "Focus on repo-aware delivery, task breakdown, test planning"
 
@@ -228,7 +229,7 @@ async function main() {
       meta.stage = "planning_done";
       require("../lib/run").writeMeta(dir, meta);
       console.log(`\nOutput: ${dir}`);
-      console.log(`\nNext: ask opencode to run synthesis, then:\n  aicouncil continue ${dir}`);
+      console.log(`\nNext files to create in the run directory:\n  03_opencode_architect.md   (your plan)\n  04_synthesis.md             (compare all plans)\n  05_questions_for_human.md   (decisions needed)\n  06_human_answers.md         (after human responds)\n  07_final_plan.md            (v1 plan)\n\nThen: aicouncil continue ${dir}`);
       break;
     }
     case "continue": {
