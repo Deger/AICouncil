@@ -4,11 +4,20 @@ const fs = require("fs");
 const path = require("path");
 const { loadConfig, getPromptsDir, validateConfig } = require("../lib/config");
 const { createRunDir, readMeta } = require("../lib/run");
-const { runPlanStage, runStage, continueWorkflow } = require("../lib/workflow");
+const { runPlanStage, runStage, continueWorkflow, retryFailedAgents } = require("../lib/workflow");
 
 const USER_DIR = process.env.AICOUNCIL_HOME || process.cwd();
 const CONFIG_PATH = path.join(USER_DIR, "council.yaml");
 const RUNS_DIR = path.join(USER_DIR, "runs");
+
+function resolveRunDir(arg) {
+  if (arg === "--latest") {
+    const latest = require("../lib/run").latestRunDir(RUNS_DIR);
+    if (!latest) { console.log("No runs found."); process.exit(1); }
+    return latest;
+  }
+  return arg;
+}
 
 function printHelp() {
   console.log(`aicouncil — Multi-agent AI dev council orchestrator
@@ -18,12 +27,13 @@ Usage:
                 [--file <path>]    Read additional context from a file
                 [--stdin]          Read topic from stdin
                 [--skip <agents>]  Comma-separated agents to skip
-  aicouncil continue <run-dir>    Continue a run (auto-detect next stage)
-                   [--skip <agents>]  Agents to skip in review stages
-  aicouncil status <run-dir>      Show run status
+  aicouncil continue <run-dir|--latest>  Continue a run
+  aicouncil retry <run-dir|--latest>    Retry failed agents in a run
+                --agent <name>     Retry only this agent
+  aicouncil status <run-dir|--latest>   Show run status
   aicouncil init                  Create council.yaml template in current directory
-  aicouncil run <stage> <run-dir> Execute a single workflow stage
-  aicouncil validate              Validate council.yaml configuration
+  aicouncil health                Probe all agents for availability
+  aicouncil doctor                 Pre-flight check: config + agent availability
   aicouncil help                  Show this help
 
 Options:
@@ -94,7 +104,20 @@ workflow:
 
   fs.writeFileSync(target, template);
   console.log(`Created: ${target}`);
-  console.log("Edit this file to configure your agents and workflow.");
+
+  // Copy built-in prompt templates
+  const builtinPrompts = path.join(__dirname, "..", "prompts");
+  const localPrompts = path.join(process.cwd(), "prompts");
+  if (fs.existsSync(builtinPrompts) && !fs.existsSync(localPrompts)) {
+    fs.mkdirSync(localPrompts, { recursive: true });
+    for (const f of fs.readdirSync(builtinPrompts)) {
+      if (f.endsWith(".md")) {
+        fs.copyFileSync(path.join(builtinPrompts, f), path.join(localPrompts, f));
+      }
+    }
+    console.log(`Copied prompts to: ${localPrompts}`);
+  }
+  console.log("Edit council.yaml to configure your agents and workflow.");
 }
 
 function cmdStatus(runDir) {
@@ -118,6 +141,27 @@ function cmdValidate() {
   } catch (err) {
     console.log(`Error: ${err.message}`);
     process.exit(1);
+  }
+}
+
+async function cmdHealth(config) {
+  console.log("Agent health check:\n");
+  for (const [name, agent] of Object.entries(config.agents)) {
+    if (!agent.command) {
+      console.log(`  [${name}] orchestrator (no command)`);
+      continue;
+    }
+    try {
+      const result = await require("../lib/agent").runAgent(agent.command, [...(agent.args || []), "--version"], "", 10000);
+      if (result.ok && result.stdout) {
+        const firstLine = result.stdout.split("\n")[0].slice(0, 60);
+        console.log(`  [${name}] OK — ${firstLine}`);
+      } else {
+        console.log(`  [${name}] FAIL — ${result.stderr?.split("\n")[0]?.slice(0, 60) || `exit ${result.exitCode}`}`);
+      }
+    } catch (e) {
+      console.log(`  [${name}] FAIL — ${e.message}`);
+    }
   }
 }
 
@@ -188,18 +232,40 @@ async function main() {
       break;
     }
     case "continue": {
-      const dir = filteredArgs[1];
-      if (!dir) { console.log("Usage: aicouncil continue <run-dir>"); process.exit(1); }
+      let dir = resolveRunDir(filteredArgs[1]);
+      if (!dir) { console.log("Usage: aicouncil continue <run-dir|--latest>"); process.exit(1); }
       if (dryRun) { console.log(`Would run: continue ${dir}`); break; }
       const config = loadConfig(CONFIG_PATH);
       const promptsDir = getPromptsDir(CONFIG_PATH);
       await continueWorkflow(config, promptsDir, dir, skipAgents);
       break;
     }
+    case "retry": {
+      let dir = resolveRunDir(filteredArgs[1]);
+      if (!dir) { console.log("Usage: aicouncil retry <run-dir|--latest> [--agent <name>]"); process.exit(1); }
+      const retryAgent = args.includes("--agent") ? args[args.indexOf("--agent") + 1] : null;
+      if (dryRun) { console.log(`Would retry ${retryAgent || "all failed"} in ${dir}`); break; }
+      const config = loadConfig(CONFIG_PATH);
+      const promptsDir = getPromptsDir(CONFIG_PATH);
+      await retryFailedAgents(config, promptsDir, dir, retryAgent);
+      break;
+    }
     case "status": {
-      const dir = filteredArgs[1];
-      if (!dir) { console.log("Usage: aicouncil status <run-dir>"); process.exit(1); }
+      let dir = resolveRunDir(filteredArgs[1]);
+      if (!dir) { console.log("Usage: aicouncil status <run-dir|--latest>"); process.exit(1); }
       cmdStatus(dir);
+      break;
+    }
+    case "doctor": {
+      const config = loadConfig(CONFIG_PATH);
+      const errors = validateConfig(config);
+      if (errors.length > 0) {
+        console.log("Config errors:");
+        errors.forEach(e => console.log(`  - ${e}`));
+      } else {
+        console.log("Config: valid");
+      }
+      await cmdHealth(config);
       break;
     }
     case "init":
