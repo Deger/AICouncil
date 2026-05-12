@@ -21,14 +21,16 @@ Use `--skip` on every `aicouncil plan` and `aicouncil continue` call. Never spaw
 
 ## Setup (first time only)
 
+**All aicouncil commands must run from the project root.** The `runs/` directory and `council.yaml` are created relative to `process.cwd()`.
+
 ```bash
-# Install
+# Install (if not already installed)
 git clone https://github.com/Deger/AICouncil.git /tmp/aicouncil && cd /tmp/aicouncil && npm install && npm link
 
-# In the user's project root directory
+# Navigate to the user's PROJECT ROOT, then initialize
 cd <project-root>
-aicouncil init
-aicouncil doctor
+aicouncil init         # creates council.yaml + prompts/ in this directory
+aicouncil doctor       # checks all agents are available
 ```
 
 **To update the skill later**: `npx skills update aic -g` or delete and reinstall.
@@ -52,64 +54,71 @@ Add a rate limiter to the API gateway in src/gateway/. Token bucket algorithm, 1
 
 ### Step 1: Plan
 
-**Always run from the project root directory.** The `runs/` directory is created relative to your current working directory.
+**Always run from `<project-root>`.**
 
-Spawn other agents (skip yourself):
 ```bash
 cd <project-root> && aicouncil plan "<topic>" --skip <your-tool> [--file <path>] [--stdin]
 ```
 
+This creates `runs/<date>-<slug>/` under the project root. The run directory path is printed to stdout — **remember it** (e.g., `runs/2026-05-12-my-feature/`).
+
 ### Step 2: Write your own plan
 
-Write your plan as the next numbered file in the run directory (e.g., `03_claude_architect.md` if you're Claude). Match the architect prompt format: Summary, Architecture, Files, Implementation, Tradeoffs, Risks, Questions, Tests.
+Write your plan **inside the run directory** (NOT in the project root). Name it `03_<your-tool>_architect.md`.
 
-### Step 3: Read the outputs
+Example: if the run dir is `runs/2026-05-12-my-feature/`, write to:
+```
+runs/2026-05-12-my-feature/03_claude_architect.md
+```
 
-List the run directory. Read all plans (your own + the other agents').
+### Step 3: Read all plans
+
+List the run directory:
+```bash
+ls <run-dir>/
+```
+
+Read all `*_architect.md` files inside it.
 
 ### Step 4: Synthesize
 
-Write `04_synthesis.md` comparing all plans:
-- Common Ground
-- Major Differences
-- Risk Matrix
-- Open Questions For Human
-- Recommended Direction
-- Borrow From Each Plan
+All files go inside the run directory:
 
-Write `05_questions_for_human.md` with checkbox questions. Include a free-form "Additional Thoughts" section at the bottom.
+- `<run-dir>/04_synthesis.md` — Compare all plans: Common Ground, Differences, Risk Matrix, Open Questions, Recommended Direction
+- `<run-dir>/05_questions_for_human.md` — Checkbox questions + free-form "Additional Thoughts"
 
 ### Step 5: Human Gate
 
-Show the user `05_questions_for_human.md`. Wait for their answers. Save as `06_human_answers.md`.
+Show `05_questions_for_human.md` to the user. Wait for their answers. **Save answers inside the run directory as `<run-dir>/06_human_answers.md`.**
 
 ### Step 6: Final Plan
 
-Write `07_final_plan.md` incorporating human decisions. Also write:
-- `08_implementation_prompt.md` — dev-ready prompt for implementation
-- `09_review_checklist.md` — review criteria
+Write inside the run directory:
+- `<run-dir>/07_final_plan.md` — comprehensive plan incorporating human decisions
+- `<run-dir>/08_implementation_prompt.md` — dev-ready implementation prompt
+- `<run-dir>/09_review_checklist.md` — review criteria
 
 ### Step 7: Reviews
 
 ```bash
-aicouncil continue --skip <your-tool> <run-dir>
+cd <project-root> && aicouncil continue --skip <your-tool> <run-dir>
 ```
 
-This spawns the OTHER agents to review. Use `aicouncil continue --latest` if you don't remember the run path.
+(AICouncil reads/writes all review files inside the run directory automatically.)
 
 ### Step 8: Revise
 
-Read the review outputs. Classify each comment: accept / reject / defer / clarify. Write `11_deepseek_synthesis_v2.md`.
+Read the review outputs inside the run directory. Classify each comment: accept / reject / defer / clarify. Write `<run-dir>/11_deepseek_synthesis_v2.md`.
 
 ### Step 9: Review Round 2
 
 ```bash
-aicouncil continue --skip <your-tool> <run-dir>
+cd <project-root> && aicouncil continue --skip <your-tool> <run-dir>
 ```
 
 ### Step 10: Finish
 
-Write `14_final.md` — the converged, reviewed final plan.
+Write `<run-dir>/14_final.md` — the converged, reviewed final plan.
 
 ## Agent Failures
 
