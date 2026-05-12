@@ -19,6 +19,8 @@ That's it. The AI installs the skill, then spawns Claude and Codex to write plan
 
 After the first time, just type `/aic <requirement>`.
 
+> **To update the skill later**: `npx skills update aic -g`
+
 > **First install?** Restart your AI tool after installing the skill.
 > - **Claude Code**: `/aic` shows up after restart.
 > - **OpenCode**: restart, then type `/skills` and select aicouncil, or manually type `/aic` (no autocomplete yet).
