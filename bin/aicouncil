@@ -71,17 +71,25 @@ agents:
     role: "Implementation Architect"
     description: "Focus on repo-aware delivery, task breakdown, test planning"
 
-  opencode:
+  deepseek-opencode:
     command: "opencode"
     args: ["run", "--dangerously-skip-permissions", "--pure"]
-    role: "Lead Developer & Orchestrator"
+    role: "Lead Developer (DeepSeek via OpenCode)"
     description: "Synthesizes plans, judges reviews, resolves conflicts"
+
+  deepseek-claude:
+    command: "claude"
+    args: ["-p", "--model", "deepseek-v4-pro"]
+    env:
+      ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic"
+      ANTHROPIC_API_KEY: "${DEEPSEEK_API_KEY}"
+    role: "Architect (DeepSeek via Claude Code)"
 
 workflow:
   stages:
     - id: plan
       description: "Generate independent plans from all agents in parallel"
-      agents: [claude, codex, opencode]
+      agents: [claude, codex, deepseek-opencode, deepseek-claude]
       prompt: architect.md
       parallel: true
 
@@ -94,7 +102,7 @@ workflow:
 
     - id: review
       description: "Agents review the current plan"
-      agents: [claude, codex, opencode]
+      agents: [claude, codex, deepseek-opencode, deepseek-claude]
       prompt: reviewer.md
       parallel: true
       rounds: 2                     # set to 1 for a lighter process

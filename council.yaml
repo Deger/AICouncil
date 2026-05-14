@@ -8,42 +8,50 @@ defaults:
 agents:
   claude:
     command: "claude"
-    # --bare skips repo scanning for faster planning
     args: ["-p"]
-    role: "Conservative Architect"
+    role: "Conservative Architect (Anthropic Claude)"
     description: "Focus on long-term maintenance, edge cases, boundary conditions"
 
   codex:
     command: "codex"
     args: ["exec"]
     # disabled: true              # uncomment to skip this agent
-    role: "Implementation Architect"
+    role: "Implementation Architect (OpenAI Codex)"
     description: "Focus on repo-aware delivery, task breakdown, test planning"
 
-  opencode:
+  deepseek-opencode:
     command: "opencode"
     args: ["run", "--dangerously-skip-permissions", "--pure"]
-    role: "Lead Developer & Orchestrator"
-    description: "Synthesizes plans, judges reviews, resolves conflicts, produces final plan"
+    role: "Lead Developer (DeepSeek via OpenCode)"
+    description: "Synthesizes plans, judges reviews, resolves conflicts"
+
+  deepseek-claude:
+    command: "claude"
+    args: ["-p", "--model", "deepseek-v4-pro"]
+    env:
+      ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic"
+      ANTHROPIC_API_KEY: "${DEEPSEEK_API_KEY}"
+    role: "Architect (DeepSeek via Claude Code)"
+    description: "Claude Code tooling with DeepSeek backend — faster iteration"
 
 workflow:
   stages:
     - id: plan
       description: "Generate independent plans from all agents in parallel"
-      agents: [claude, codex, opencode]
+      agents: [claude, codex, deepseek-opencode]
       prompt: architect.md
       parallel: true
 
     - id: synthesis
       description: "Compare plans, extract open questions for human decision"
-      gate: 06_human_answers.md     # workflow pauses here — edit this file, then continue
+      gate: 06_human_answers.md
 
     - id: final-plan
       description: "Generate comprehensive final plan, implementation prompt, and review checklist"
 
     - id: review
       description: "Agents review the current plan"
-      agents: [claude, codex, opencode]
+      agents: [claude, codex, deepseek-opencode]
       prompt: reviewer.md
       parallel: true
       rounds: 2                     # change to 1 for a lighter process

@@ -11,13 +11,16 @@ You are using aicouncil, a multi-agent dev council orchestrator. Follow this wor
 
 ## Which tool are you?
 
-You are the orchestrator. Always use `--skip <yourself>` to avoid spawning yourself:
+You are the orchestrator. Identify which tool+backend you are, then use the corresponding agent name with `--skip`:
 
-- **Claude Code** → `aicouncil plan --skip claude`
-- **OpenCode (DeepSeek)** → `aicouncil plan --skip opencode`
-- **Codex** → `aicouncil plan --skip codex`
+| Your tool | Backend | Use `--skip` |
+|-----------|---------|-------------|
+| Claude Code | Anthropic | `--skip claude` |
+| Claude Code | DeepSeek | `--skip deepseek-claude` |
+| OpenCode | DeepSeek | `--skip deepseek-opencode` |
+| Codex | OpenAI | `--skip codex` |
 
-Use `--skip` on every `aicouncil plan` and `aicouncil continue` call. Never spawn yourself.
+**If you're unsure which backend you're running on**, ask the user: "Am I running on Anthropic or DeepSeek? Which agent should I skip?"
 
 ## Setup (first time only)
 
@@ -152,9 +155,12 @@ Use `--latest` instead of `<run-dir>` to auto-select the most recent run.
 
 ```
 00_input.md                     # topic
-01_claude_architect.md          # Claude's plan
+01_claude_architect.md          # Claude's plan (Anthropic)
 02_codex_architect.md           # Codex's plan
-03_opencode_architect.md        # Your plan (name varies)
+01_claude_architect.md          # Claude's plan (Anthropic)
+02_codex_architect.md           # Codex's plan
+03_deepseek_opencode_architect.md  # DeepSeek via OpenCode
+04_deepseek_claude_architect.md    # DeepSeek via Claude Code
 04_synthesis.md                 # Comparison
 05_questions_for_human.md       # Questions for user
 06_human_answers.md             # User's decisions
