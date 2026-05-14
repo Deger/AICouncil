@@ -49,67 +49,8 @@ function cmdInit() {
     process.exit(1);
   }
 
-  const template = `version: 2
-
-defaults:
-  timeoutSeconds: 1800
-  # Supported: "en", "zh-CN", "ja", etc.
-  outputLanguage: "en"
-
-agents:
-  claude:
-    command: "claude"
-    # --bare skips repo scanning for faster response
-    args: ["-p"]
-    role: "Conservative Architect"
-    description: "Focus on long-term maintenance, edge cases, boundary conditions"
-
-  codex:
-    command: "codex"
-    args: ["exec"]
-    # disabled: true              # uncomment to skip this agent
-    role: "Implementation Architect"
-    description: "Focus on repo-aware delivery, task breakdown, test planning"
-
-  deepseek-opencode:
-    command: "opencode"
-    args: ["run", "--dangerously-skip-permissions", "--pure"]
-    role: "Lead Developer (DeepSeek via OpenCode)"
-    description: "Synthesizes plans, judges reviews, resolves conflicts"
-
-  deepseek-claude:
-    command: "claude"
-    args: ["-p", "--model", "deepseek-v4-pro"]
-    env:
-      ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic"
-      ANTHROPIC_API_KEY: "${DEEPSEEK_API_KEY}"
-    role: "Architect (DeepSeek via Claude Code)"
-
-workflow:
-  stages:
-    - id: plan
-      description: "Generate independent plans from all agents in parallel"
-      agents: [claude, codex, deepseek-opencode, deepseek-claude]
-      prompt: architect.md
-      parallel: true
-
-    - id: synthesis
-      description: "Compare plans, extract open questions for you to decide"
-      gate: 06_human_answers.md
-
-    - id: final-plan
-      description: "Generate comprehensive final plan and implementation prompt"
-
-    - id: review
-      description: "Agents review the current plan"
-      agents: [claude, codex, deepseek-opencode, deepseek-claude]
-      prompt: reviewer.md
-      parallel: true
-      rounds: 2                     # set to 1 for a lighter process
-
-    - id: finalize
-      description: "Extract final questions and produce the converged final.md"
-`;
+  const templatePath = path.join(__dirname, "..", "init-template.yaml");
+  const template = fs.readFileSync(templatePath, "utf-8");
 
   fs.writeFileSync(target, template);
   console.log(`Created: ${target}`);

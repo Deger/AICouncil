@@ -10,6 +10,7 @@
     "lib/",
     "prompts/",
     "skills/",
+    "init-template.yaml",
     "council.yaml",
     "README.md",
     "CONTRIBUTING.md",

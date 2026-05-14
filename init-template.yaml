@@ -1,0 +1,60 @@
+version: 2
+
+defaults:
+  timeoutSeconds: 1800
+  outputLanguage: "en"
+
+agents:
+  claude:
+    command: "claude"
+    args: ["-p"]
+    role: "Conservative Architect"
+    description: "Focus on long-term maintenance, edge cases"
+
+  codex:
+    command: "codex"
+    args: ["exec"]
+    # disabled: true
+    role: "Implementation Architect"
+    description: "Focus on repo-aware delivery, task breakdown"
+
+  deepseek-opencode:
+    command: "opencode"
+    args: ["run", "--dangerously-skip-permissions", "--pure"]
+    role: "Lead Developer (DeepSeek via OpenCode)"
+    description: "Synthesizes plans, judges reviews, resolves conflicts"
+
+  deepseek-claude:
+    command: "claude"
+    args: ["-p", "--model", "deepseek-v4-pro"]
+    env:
+      ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic"
+      ANTHROPIC_API_KEY: "${DEEPSEEK_API_KEY}"
+    # disabled: true
+    role: "Architect (DeepSeek via Claude Code)"
+    description: "Claude Code with DeepSeek backend"
+
+workflow:
+  stages:
+    - id: plan
+      description: "Generate independent plans from all agents in parallel"
+      agents: [claude, codex, deepseek-opencode]
+      prompt: architect.md
+      parallel: true
+
+    - id: synthesis
+      description: "Compare plans, extract open questions for human decision"
+      gate: 06_human_answers.md
+
+    - id: final-plan
+      description: "Generate comprehensive final plan and implementation prompt"
+
+    - id: review
+      description: "Agents review the current plan"
+      agents: [claude, codex, deepseek-opencode]
+      prompt: reviewer.md
+      parallel: true
+      rounds: 2
+
+    - id: finalize
+      description: "Extract final questions and produce the converged final.md"
