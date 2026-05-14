@@ -92,7 +92,13 @@ All files go inside the run directory:
 
 ### Step 5: Human Gate
 
-Show `05_questions_for_human.md` to the user. Wait for their answers. **Save answers inside the run directory as `<run-dir>/06_human_answers.md`.**
+Ask the user in two rounds:
+
+**Round 1 — Choices**: Present the checkbox questions inline in the chat. Let the user answer directly (they don't need to edit a file).
+
+**Round 2 — Open thoughts**: After they've answered the choices, ask: "Any additional thoughts, concerns, or constraints I should consider?"
+
+Save all answers to `<run-dir>/06_human_answers.md`.
 
 ### Step 6: Final Plan
 
