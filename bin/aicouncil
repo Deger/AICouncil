@@ -67,6 +67,17 @@ function cmdInit() {
     }
     console.log(`Copied prompts to: ${localPrompts}`);
   }
+
+  // Add runs/ to .gitignore
+  const gitignore = path.join(process.cwd(), ".gitignore");
+  if (fs.existsSync(gitignore)) {
+    const content = fs.readFileSync(gitignore, "utf-8");
+    if (!content.includes("runs/")) {
+      fs.appendFileSync(gitignore, "\nruns/\n");
+      console.log("Added runs/ to .gitignore");
+    }
+  }
+
   console.log("Edit council.yaml to configure your agents and workflow.");
 }
 
