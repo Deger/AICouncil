@@ -249,6 +249,11 @@ async function main() {
     case "validate":
       cmdValidate();
       break;
+    case "version":
+    case "--version":
+    case "-v":
+      console.log(require("../package.json").version);
+      break;
     case "help":
     case "--help":
     case "-h":

@@ -23,7 +23,7 @@ After the first time, just type `/aic <requirement>`.
 
 > **First install?** Restart your AI tool after installing the skill.
 > - **Claude Code**: `/aic` shows up after restart.
-> - **OpenCode**: restart, then type `/skills` and select aicouncil, or manually type `/aic` (no autocomplete yet).
+> - **OpenCode**: restart, then type `/skills` and select aicouncil.
 
 **Example**: you want dark mode. You paste:
 
