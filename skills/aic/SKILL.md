@@ -36,7 +36,7 @@ aicouncil init         # creates council.yaml + prompts/ in this directory
 aicouncil doctor       # checks all agents are available
 ```
 
-**To update the skill later**: `npx skills update aic -g` or delete and reinstall.
+**To update**: `aicouncil update` or delete and reinstall.
 
 ## Writing a Good Topic
 

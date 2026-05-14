@@ -33,7 +33,7 @@ Usage:
   aicouncil status <run-dir|--latest>   Show run status
   aicouncil init                  Create council.yaml template in current directory
   aicouncil health                Probe all agents for availability
-  aicouncil doctor                 Pre-flight check: config + agent availability
+  aicouncil update                 Update aicouncil CLI to latest version
   aicouncil help                  Show this help
 
 Options:
@@ -204,6 +204,21 @@ async function main() {
       let dir = resolveRunDir(filteredArgs[1]);
       if (!dir) { console.log("Usage: aicouncil status <run-dir|--latest>"); process.exit(1); }
       cmdStatus(dir);
+      break;
+    }
+    case "update": {
+      const installDir = path.resolve(__dirname, "..");
+      console.log(`Updating aicouncil in ${installDir}...`);
+      const { execSync } = require("child_process");
+      try {
+        console.log(execSync("git pull", { cwd: installDir, encoding: "utf-8" }).trim());
+        execSync("npm install --silent", { cwd: installDir });
+        console.log("CLI updated. Updating skill...");
+        execSync("npx skills update aic -g -y", { stdio: "inherit" });
+        console.log("Done. Restart your AI tool to load the updated skill.");
+      } catch (e) {
+        console.log("Update failed:", e.message);
+      }
       break;
     }
     case "doctor": {

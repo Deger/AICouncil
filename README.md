@@ -19,7 +19,7 @@ That's it. The AI installs the skill, then spawns Claude and Codex to write plan
 
 After the first time, just type `/aic <requirement>`.
 
-> **To update the skill later**: `npx skills update aic -g`
+> **To update**: `aicouncil update` (updates CLI + skill in one command)
 
 > **First install?** Restart your AI tool after installing the skill.
 > - **Claude Code**: `/aic` shows up after restart.
@@ -37,17 +37,16 @@ Add a dark mode toggle to Settings. Persist preference in localStorage.
 ## If you want to run it yourself
 
 ```bash
-npx skills add Deger/AICouncil -g
+curl -fsSL https://raw.githubusercontent.com/Deger/AICouncil/main/install.sh | bash
 ```
 
-Then type `/aic <requirement>` in Claude Code or OpenCode.
+Then `/aic <requirement>` in Claude Code or OpenCode.
 
-Prefer the CLI directly?
+Or manually:
 
 ```bash
-git clone https://github.com/Deger/AICouncil.git && cd AICouncil && npm install && npm link
-cd your-project && aicouncil init
-aicouncil plan "Add a rate limiter to the API gateway"
+git clone https://github.com/Deger/AICouncil.git ~/.aicouncil && cd ~/.aicouncil && npm install && npm link
+npx skills add Deger/AICouncil -g -y
 ```
 
 ---
